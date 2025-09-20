@@ -13,7 +13,7 @@ end full_adder;
 
 architecture rtl of full_adder is
 begin
-  process(a, b) is
+  process(a, b, cin) is
   begin
     s <= a xor b xor cin;
     cout <= (a and b) or (cin and (a xor b));
