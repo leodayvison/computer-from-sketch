@@ -1,0 +1,10 @@
+# Ignorar arquivos temporários e gerados
+*.cf
+*.ghw
+*.v
+work/
+waves/
+logs/
+
+# Ignorar scripts executáveis (opcional, dependendo do seu fluxo de trabalho)
+# run_sim.sh
