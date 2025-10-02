@@ -7,25 +7,27 @@ entity testbench is
 -- empty
 end testbench; 
 
-architecture tb of testbench is
+architecture tb of testbench is --TODO terminar testbench com casos de subtracao
 
 -- DUT component
-component somadorEntity is
+component ulaEntity is
 port(
-  a: IN std_logic_vector(2 downto 0);
-  b: IN std_logic_vector(2 downto 0);
-  q: OUT std_logic_vector(2 downto 0);
-  cin: IN std_logic;
-  cout: OUT std_logic);
+  a: IN std_logic_vector(7 downto 0);
+  b: IN std_logic_vector(7 downto 0);
+  f: OUT std_logic_vector(7 downto 0);
+  s: IN std_logic_vector(2 downto 0);
+  cin: IN std_logic
+  cout: OUT std_logic
+);
 end component;
 
-signal a_in, b_in, q_out: std_logic_vector(2 downto 0);
+signal a_in, b_in, s_in, f_out: std_logic_vector(2 downto 0);
 signal cin_in, cout_out: std_logic;
 
 begin
 
   -- Connect DUT
-  DUT: somadorEntity port map(a_in, b_in, q_out, cin_in, cout_out);
+  DUT: ulaEntity port map(a_in, b_in, f_out, s_in, cin_in, cout_out);
 
   process
   begin
