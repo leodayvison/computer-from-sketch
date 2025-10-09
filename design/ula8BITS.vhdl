@@ -8,15 +8,16 @@ port(
   b: IN std_logic_vector(7 downto 0);
   f: OUT std_logic_vector(7 downto 0);
   s: IN std_logic_vector(2 downto 0);
-  cin: IN std_logic
+  cin: IN std_logic;
   cout: OUT std_logic
   );
 end ulaEntity;
 
 architecture ulaARCH of ulaEntity is
+signal carry: std_logic;
+
 begin
   process(a, b, s, cin)
-  	signal carry: std_logic;
   begin
     case s is -- usaremos o mesmo esquema do ci 74ls382
       when "011" => -- soma
