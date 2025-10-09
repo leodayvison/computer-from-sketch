@@ -16,23 +16,35 @@ end ulaEntity;
 architecture ulaARCH of ulaEntity is
 begin
   process(a, b, s, cin)
-  	variable carry: std_logic;
+  	signal carry: std_logic;
   begin
     case s is -- usaremos o mesmo esquema do ci 74ls382
       when "011" => -- soma
-        carry := cin;
+        carry <= cin;
         for n in 0 to 7 loop
           f(n) <= ((carry XOR a(n)) XOR b(n));
-          carry := ((a(n) and b(n)) or (carry and (a(n) or b(n))));
+          carry <= ((a(n) and b(n)) or (carry and (a(n) or b(n))));
         end loop;
         cout <= carry;
       when "010" => -- A MINUS B
-        carry := "1";
+        carry <= "1";
         for n in 0 to 7 loop
           f(n) <= ((carry XOR a(n)) XOR (not b(n)));
-          carry := ((a(n) and (not b(n))) or (carry and (a(n) or (not b(n)))));
+          carry <= ((a(n) and (not b(n))) or (carry and (a(n) or (not b(n)))));
         end loop;
         cout <= carry;
+      when "101" => --LOGIC OP: OR
+     	for n in 0 to 7 loop
+     		f(n) <= a or b;
+     	end loop;
+      when "110" => --LOGIC OP: AND
+      	for n in 0 to 7 loop
+        	f(n) <= a and b;
+        end loop;
+      when "100" => --LOGIC OP: XOR
+      	for n in 0 to 7 loop
+        	f(n) <= a xor b;
+        end loop;
     end case;
   end process;
 end ulaARCH;
