@@ -28,7 +28,7 @@ begin
         end loop;
         cout <= carry;
       when "010" => -- A MINUS B
-        carry <= "1";
+        carry <= '1';
         for n in 0 to 7 loop
           f(n) <= ((carry XOR a(n)) XOR (not b(n)));
           carry <= ((a(n) and (not b(n))) or (carry and (a(n) or (not b(n)))));

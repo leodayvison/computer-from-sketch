@@ -21,7 +21,8 @@ port(
 );
 end component;
 
-signal a_in, b_in, s_in, f_out: std_logic_vector(2 downto 0);
+signal a_in, b_in, f_out: std_logic_vector(7 downto 0);
+signal s_in: std_logic_vector(2 downto 0);
 signal cin_in, cout_out: std_logic;
 
 begin
@@ -31,30 +32,30 @@ begin
 
   process
   begin
-    a_in <= "010";
-    b_in <= "011";
+    a_in <= "00000010";
+    b_in <= "00000011";
     cin_in <= '0';
     wait for 1 ns;
-    assert(q_out="101") report "Fail" severity error;
+    assert(f_out="00000101") report "Fail" severity error;
     assert(cout_out='0') report "Fail" severity error;
     
-    a_in <= "001";
-    b_in <= "011";
+    a_in <= "00000001";
+    b_in <= "00000011";
     cin_in <= '0';
     wait for 1 ns;
-    assert(q_out="100") report "Fail" severity error;
+    assert(f_out="00000100") report "Fail" severity error;
     assert(cout_out='0') report "Fail" severity error;
     
-    a_in <= "111";
-    b_in <= "111";
+    a_in <= "00000111";
+    b_in <= "00000111";
     cin_in <= '0';
     wait for 1 ns;
-    assert(q_out="110") report "Fail 0/0/0" severity error;
+    assert(f_out="00000110") report "Fail 0/0/0" severity error;
     assert(cout_out='1') report "Fail 0/0/0" severity error;
     
     -- Clear inputs
-    a_in <= "000";
-    b_in <= "000";
+    a_in <= "00000000";
+    b_in <= "00000000";
     cin_in <= '0';
 
     assert false report "Test done." severity note;
