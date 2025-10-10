@@ -36,15 +36,15 @@ begin
         cout <= carry;
       when "101" => --LOGIC OP: OR
      	for n in 0 to 7 loop
-     		f(n) <= a or b;
+     		f(n) <= a(n) or b(n);
      	end loop;
       when "110" => --LOGIC OP: AND
       	for n in 0 to 7 loop
-        	f(n) <= a and b;
+        	f(n) <= a(n) and b(n);
         end loop;
       when "100" => --LOGIC OP: XOR
       	for n in 0 to 7 loop
-        	f(n) <= a xor b;
+        	f(n) <= a(n) xor b(n);
         end loop;
     end case;
   end process;
