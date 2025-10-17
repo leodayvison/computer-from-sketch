@@ -97,7 +97,10 @@ end uc;
 
 architecture ucARCH of uc is
     begin
-        ula.inst: entity work.ulaEntity
+        ula.inst: entity work.ulaEntity(ulaARCH)
+          port map(
+            saida
+          )
 
 
 

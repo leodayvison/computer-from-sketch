@@ -6,7 +6,6 @@ entity sub is
     port(a: in std_logic_vector(7 downto 0);
          b: in std_logic_vector(7 downto 0);
          f: out std_logic_vector(7 downto 0);
-         cin: in std_logic;
          );
 end sub;
 
@@ -26,7 +25,7 @@ signal complemento: std_logic;
     begin
         complemento <= '1';
         b_invertido <= not b;
-        U1: sum port map(a, b, saida_sum, complemento, cout);
+        U1: sum port map(a, b_invertido, saida_sum, complemento, open);
         f <= saida_sum;
 
 end subARCH;
