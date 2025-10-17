@@ -18,6 +18,9 @@ architecture ulaARCH of ulaEntity is
 signal carry: std_logic;
 
 begin
+    
+
+
   process(a, b, s, cin)
   begin
     case s is -- usaremos o mesmo esquema do ci 74ls382
@@ -92,10 +95,18 @@ entity uc is
     );
 end uc;
 
-architecture logica_uc of uc is
+architecture ucARCH of uc is
     begin
+        ula.inst: entity work.ulaEntity
+
+
+
         with entrada select -- decoder
             saida <= "00000000" when "00000000",
             "00000001" when "00000001",
             "11111111" when "11111111";
-    end logica_uc;
+    end ucARCH;
+
+
+
+
