@@ -1,3 +1,22 @@
+-- Imports
+library IEEE;
+use IEEE.std_logic_1164.all;
+USE IEEE.numeric_std.all;
+
+--------------------------------------------------------------
+
+-------Main Decoder Entity:
+--Note that we work with 8-bit words
+
+entity controlDecoderEntity is
+port(
+	clk: IN std_logic;
+    reset: IN std_logic;
+    mainInput: IN std_logic_vector(7 downto 0); --Words for Instruction Queue
+    output: OUT std_logic_vector(7 downto 0); --Main output (e.g.: adder A + B)
+	);
+end controlDecoderEntity;
+
 --------------------------------------------------------------
 
 -------ULA Entity (Only Adder at the moment):
@@ -154,6 +173,7 @@ ULA: adderEntity port map(
 
 
 end controlLogic;
+
 
 --Explicando o que o código faz, resumidamente: 
 --O código tem 3 entidades/componentes: MAIN DECODER, ULA, REGISTERBANK
