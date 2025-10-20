@@ -13,8 +13,12 @@ port(
   );
 end ulaEntity;
 
+
+-- ARQUITETURA
+
 architecture ulaARCH of ulaEntity is
-signal carry_in, carry_out: std_logic;
+signal carry_out: std_logic;
+signal res_sum, res_sub, res_mul, res_div: std_logic_vector(7 downto 0);
 
   component sum is
     port(
@@ -50,30 +54,24 @@ signal carry_in, carry_out: std_logic;
     );
   end component div;
 
-  U1: sum port map(a, b, f, carry_in, carry_out);
-  U2: sub port map(a, b, f);
-  U3: mul port map(a, b, f);
-  U4: div port map(a, b, f);
+  U1: sum port map(a, b, res_sum, cin, carry_out);
+  U2: sub port map(a, b, res_sub);
+  U3: mul port map(a, b, res_mul);
+  U4: div port map(a, b, res_div);
 
-  
+
 begin
   process(a, b, s, cin)
   begin
     case s is -- usaremos o mesmo esquema do ci 74ls382
-      when "011" => -- soma
-        carry <= cin;
-        for n in 0 to 7 loop
-          f(n) <= ((carry XOR a(n)) XOR b(n));
-          carry <= ((a(n) and b(n)) or (carry and (a(n) or b(n))));
-        end loop;
-        cout <= carry;
-      when "010" => -- A MINUS B
-        carry <= '1';
-        for n in 0 to 7 loop
-          f(n) <= ((carry XOR a(n)) XOR (not b(n)));
-          carry <= ((a(n) and (not b(n))) or (carry and (a(n) or (not b(n)))));
-        end loop;
-        cout <= carry;
+      when "000" => -- soma
+        f <= res_sum;
+      when "001" => -- A MINUS B
+        f <= res_sub;
+      when "010" =>
+        f <= res_mul;
+      when "011" =>
+      f <= res_div;
       when "101" => --LOGIC OP: OR
      	for n in 0 to 7 loop
      		f(n) <= a(n) or b(n);
@@ -86,7 +84,10 @@ begin
       	for n in 0 to 7 loop
         	f(n) <= a(n) xor b(n);
         end loop;
+      when others =>
+        f <= (others => '0');
     end case;
+    cout <= carry_out;
   end process;
 end ulaARCH;
 
