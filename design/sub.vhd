@@ -5,7 +5,7 @@ USE IEEE.numeric_std.all;
 entity sub is
     port(a: in std_logic_vector(7 downto 0);
          b: in std_logic_vector(7 downto 0);
-         f: out std_logic_vector(7 downto 0);
+         f: out std_logic_vector(7 downto 0)
          );
 end sub;
 
@@ -13,14 +13,14 @@ architecture subARCH of sub is
 signal b_invertido, saida_sum: std_logic_vector(7 downto 0);
 signal complemento: std_logic;
 
-    component sum
+    component sum is
     port(
         a: in std_logic_vector(7 downto 0);
         b: in std_logic_vector(7 downto 0);
         f: out std_logic_vector(7 downto 0);
         cin: in std_logic;
         cout: out std_logic);
-    end component sum;
+    end component;
 
     begin
         complemento <= '1';

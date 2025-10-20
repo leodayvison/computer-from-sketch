@@ -14,8 +14,48 @@ port(
 end ulaEntity;
 
 architecture ulaARCH of ulaEntity is
-signal carry: std_logic;
+signal carry_in, carry_out: std_logic;
 
+  component sum is
+    port(
+      a: in std_logic_vector(7 downto 0);
+      b: in std_logic_vector(7 downto 0);
+      f: out std_logic_vector(7 downto 0);
+      cin: in std_logic;
+      cout: out std_logic
+    );
+  end component sum;
+
+  component sub is
+    port(
+      a: in std_logic_vector(7 downto 0);
+      b: in std_logic_vector(7 downto 0);
+      f: out std_logic_vector(7 downto 0)
+    );
+  end component sub;
+
+  component mul is
+    port(
+      a: in std_logic_vector(7 downto 0);
+      b: in std_logic_vector(7 downto 0);
+      f: out std_logic_vector(7 downto 0)
+    );
+  end component mul;
+
+  component div is
+    port(
+      a: in std_logic_vector(7 downto 0);
+      b: in std_logic_vector(7 downto 0);
+      f: out std_logic_vector(7 downto 0)
+    );
+  end component div;
+
+  U1: sum port map(a, b, f, carry_in, carry_out);
+  U2: sub port map(a, b, f);
+  U3: mul port map(a, b, f);
+  U4: div port map(a, b, f);
+
+  
 begin
   process(a, b, s, cin)
   begin
