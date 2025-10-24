@@ -21,14 +21,14 @@ end controlDecoderEntity;
 
 -------ULA Entity (Only Adder at the moment):
 
-entity adderEntity is
-port(
-  inputA: IN std_logic_vector(7 downto 0);
-  inputB: IN std_logic_vector(7 downto 0);
-  outputQ: OUT std_logic_vector(7 downto 0);
-  carryOut: OUT std_logic;
-  enable: IN std_logic);
-end adderEntity;
+--entity adderEntity is
+--port(
+--  inputA: IN std_logic_vector(7 downto 0);
+--  inputB: IN std_logic_vector(7 downto 0);
+--  outputQ: OUT std_logic_vector(7 downto 0);
+--  carryOut: OUT std_logic;
+--  enable: IN std_logic);
+--end adderEntity;
 
 --------------------------------------------------------------
 
@@ -53,22 +53,22 @@ end registerBankEntity;
 
 -------Adder Architecture
 
-architecture adderLogical of adderEntity is
-begin
-  process(inputA, inputB, enable)
-  	variable carry: std_logic;
-  begin
-  	carry := 0;
-    if enable = '1' then
-  		for n in 0 to 7 loop
-    		outputQ(n) <= ((carry XOR inputA(n)) XOR inputB(n));
-    		carry := ((inputA(n) and inputB(n)) or (carry and (inputA(n) or inputB(n))));
-    	end loop;
-    	carryOut <= carry;
-	else outputQ <= (others => '0');
-    end if;
-  end process;
-end adderEntity;
+--architecture adderLogical of adderEntity is
+--begin
+--  process(inputA, inputB, enable)
+--  	variable carry: std_logic;
+--  begin
+--  	carry := 0;
+--    if enable = '1' then
+--  		for n in 0 to 7 loop
+--    		outputQ(n) <= ((carry XOR inputA(n)) XOR inputB(n));
+--   		carry := ((inputA(n) and inputB(n)) or (carry and (inputA(n) or inputB(n))));
+--    	end loop;
+--    	carryOut <= carry;
+--	     outputQ <= (others => '0');
+--    end if;
+--  end process;
+--end adder;
 
 --------------------------------------------------------------
 
@@ -82,14 +82,16 @@ type stateType is (loadOpcode, loadInputA, loadInputB, doneAndExecute)
 signal state    : stateType := loadOpcode;
 
 --Components
---Adder component:
-component adderEntity is
+--ALU component:
+component ula8BITS is
 port(
   inputA: IN std_logic_vector(7 downto 0);
   inputB: IN std_logic_vector(7 downto 0);
   outputQ: OUT std_logic_vector(7 downto 0);
+  selector: in std_logic_vector(2 downto 0);
   carryOut: OUT std_logic;
-  enable: IN std_logic);
+  enable: IN std_logic
+    );
 end component;
 
 --Signals
@@ -101,6 +103,7 @@ signal inputB   : std_logic_vector(7 downto 0) := (others => '0');
 signal ULAoutput: std_logic_vector(7 downto 0);
 signal ULAenable: std_logic;
 signal carry    : std_logic;
+signal ulaSEL   : std_logic_vector(2 downto 0);
 
     
 begin
@@ -153,21 +156,18 @@ begin
     end process;  
    
 --ULA process
-ULA: adderEntity port map(
+ULA: ulaEntity port map(
     	inputA   => inputA,
         inputB   => inputB,
         outputQ  => ULAoutput,
+        selector => ulaSEL,
         carryOut => carry,
         enable   => ULAenable
 );
 
 	process(ULAoutput, ULAenable)
     begin
-        if ULAenable = '1' then
-            output <= ULAoutput;
-        else
-            output <= (others => '0');  
-        end if;
+        output <= ULAoutput;
     end process;
 
 

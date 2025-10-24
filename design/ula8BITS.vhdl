@@ -8,8 +8,8 @@ port(
   b: IN std_logic_vector(7 downto 0);
   f: OUT std_logic_vector(7 downto 0);
   s: IN std_logic_vector(2 downto 0);
-  cin: IN std_logic;
-  cout: OUT std_logic
+  cout: OUT std_logic;
+  en: IN std_logic
   );
 end ulaEntity;
 
@@ -63,31 +63,34 @@ signal res_sum, res_sub, res_mul, res_div: std_logic_vector(7 downto 0);
 begin
   process(a, b, s, cin)
   begin
-    case s is -- usaremos o mesmo esquema do ci 74ls382
-      when "000" => -- soma
-        f <= res_sum;
-      when "001" => -- A MINUS B
-        f <= res_sub;
-      when "010" =>
-        f <= res_mul;
-      when "011" =>
-      f <= res_div;
-      when "101" => --LOGIC OP: OR
-     	for n in 0 to 7 loop
-     		f(n) <= a(n) or b(n);
-     	end loop;
-      when "110" => --LOGIC OP: AND
-      	for n in 0 to 7 loop
-        	f(n) <= a(n) and b(n);
+    if en = '1' then
+      case s is -- usaremos o mesmo esquema do ci 74ls382
+        when "000" => -- soma
+          f <= res_sum;
+        when "001" => -- A MINUS B
+          f <= res_sub;
+        when "010" =>
+          f <= res_mul;
+        when "011" =>
+        f <= res_div;
+        when "101" => --LOGIC OP: OR
+        for n in 0 to 7 loop
+          f(n) <= a(n) or b(n);
         end loop;
-      when "100" => --LOGIC OP: XOR
-      	for n in 0 to 7 loop
-        	f(n) <= a(n) xor b(n);
-        end loop;
-      when others =>
-        f <= (others => '0');
-    end case;
-    cout <= carry_out;
+        when "110" => --LOGIC OP: AND
+          for n in 0 to 7 loop
+            f(n) <= a(n) and b(n);
+          end loop;
+        when "100" => --LOGIC OP: XOR
+          for n in 0 to 7 loop
+            f(n) <= a(n) xor b(n);
+          end loop;
+        when others =>
+          f <= (others => '0');
+      end case;
+      cout <= carry_out;
+    else f <= (others => '0'); 
+    end if;
   end process;
 end ulaARCH;
 
