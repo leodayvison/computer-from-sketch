@@ -1,19 +1,23 @@
 library IEEE;
-USE IEEE.std_logic_1164.all;
-USE IEEE.numeric_std.all;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
--- quando for fzr a terceira questao do igor. faça a convolução de x por h2, resulltado por h1
--- falta testbench
-entity mul is 
-    port (
-        a: in std_logic_vector(7 downto 0);
-        b: in std_logic_vector(7 downto 0);
-        f: out std_logic_vector(7 downto 0)
+entity div is
+    port(
+        a : in  std_logic_vector(7 downto 0);
+        b : in  std_logic_vector(7 downto 0);
+        f : out std_logic_vector(7 downto 0)
     );
+end div;
 
-end mul;
-
-architecture mulARCH of mul is
+architecture divARCH of div is
+begin
+    process(a, b)
     begin
-        f <= std_logic_vector(to_unsigned((to_integer(unsigned(a)) / to_integer(unsigned(b))),8)) ;
-end mulARCH;
+        if b /= "00000000" then
+            f <= std_logic_vector(to_unsigned(to_integer(unsigned(a)) / to_integer(unsigned(b)), 8));
+        else
+            f <= (others => '0');  -- divisão segura: resultado = 0
+        end if;
+    end process;
+end divARCH;

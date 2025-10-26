@@ -1,24 +1,38 @@
 library IEEE;
-USE IEEE.std_logic_1164.all;
-USE IEEE.numeric_std.all;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 entity sum is
-    port(a: in std_logic_vector(7 downto 0);
-         b: in std_logic_vector(7 downto 0);
-         f: out std_logic_vector(7 downto 0);
-         cin: in std_logic;
-         cout: out std_logic
-         );
+    port(
+        a    : in  std_logic_vector(7 downto 0);
+        b    : in  std_logic_vector(7 downto 0);
+        f    : out std_logic_vector(7 downto 0);
+        cin  : in  std_logic;
+        cout : out std_logic
+    );
 end sum;
 
 architecture sumARCH of sum is
-    signal carry: std_logic_vector(8 downto 0);
-
+    -- O 'carry' não precisa ser um sinal (signal) aqui
+begin
+    process(a, b, cin)
+        -- Declare o carry como uma VARIÁVEL dentro do process
+        variable carry_v: std_logic_vector(8 downto 0);
     begin
-        carry(0) <= cin;
+        -- 1. Use atribuição de variável (:=)
+        carry_v(0) := cin;
+
+        -- 2. Loop para o ripple-carry
         for n in 0 to 7 loop
-            f(n) <= ((carry(n) XOR a(n)) XOR b(n));
-            carry(n+1) <= ((a(n) and b(n)) or (carry(n) and (a(n) or b(n))));
+            -- A saída 'f' (um sinal) ainda usa '<='
+            f(n) <= carry_v(n) xor a(n) xor b(n);
+            
+            -- O 'carry_v' (uma variável) usa ':='
+            -- Esta atualização acontece IMEDIATAMENTE.
+            carry_v(n+1) := (a(n) and b(n)) or (carry_v(n) and (a(n) xor b(n)));
         end loop;
-    cout <= carry(8);
+
+        -- 3. A saída 'cout' (sinal) recebe o valor final da variável
+        cout <= carry_v(8);
+    end process;
 end sumARCH;

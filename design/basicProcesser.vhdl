@@ -13,7 +13,7 @@ port(
 	clk: IN std_logic;
     reset: IN std_logic;
     mainInput: IN std_logic_vector(7 downto 0); --Words for Instruction Queue
-    output: OUT std_logic_vector(7 downto 0); --Main output (e.g.: adder A + B)
+    decoderOutput: OUT std_logic_vector(7 downto 0) --Main output (e.g.: adder A + B)
 	);
 end controlDecoderEntity;
 
