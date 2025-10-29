@@ -29,20 +29,24 @@ port(
     clk: IN std_logic;
     reset: IN std_logic; --Reset the register BANK
     WE: IN std_logic; --Choose the operator (write/read)
-    address: IN unsigned(1 downto 0); --Choose the register
+    address: IN unsigned(2 downto 0); --Choose the register
     data: INOUT std_logic_vector(7 downto 0);
     
-    r0: INOUT std_logic_vector(7 downto 0);
-    r1: INOUT std_logic_vector(7 downto 0);
-    r2: INOUT std_logic_vector(7 downto 0);
-    r3: INOUT std_logic_vector(7 downto 0)
+    r0: INOUT std_logic_vector(7 downto 0); -- endereco 000
+    r1: INOUT std_logic_vector(7 downto 0); -- endereco 001
+    r2: INOUT std_logic_vector(7 downto 0); -- endereco 010
+    r3: INOUT std_logic_vector(7 downto 0); -- endereco 011
+    flags: INOUT std_logic_vector(2 downto 0) -- endereco 100
+    -- FLAGS: zero (2), overflow (1), carry (0)
     );
 end registerBankEntity;
 
 
---------------------------------------------------------------
 
--------Main Decoder Architecture
+
+---------------------------------------------------------
+--------------- Main Decoder Architecture ---------------
+---------------------------------------------------------
 
 architecture controlLogic of controlDecoderEntity is
 
@@ -51,20 +55,26 @@ architecture controlLogic of controlDecoderEntity is
 type stateType is (loadOpcode, loadInputA, loadInputB, doneAndExecute)
 signal state    : stateType := loadOpcode;
 
---Components
+
+
+--------------- COMPONENTS ---------------
+
 --ALU component:
-component ula8BITS is
+component ulaEntity is
 port(
-  inputA: IN std_logic_vector(7 downto 0);
-  inputB: IN std_logic_vector(7 downto 0);
-  outputQ: OUT std_logic_vector(7 downto 0);
-  selector: in std_logic_vector(2 downto 0);
-  carryOut: OUT std_logic;
-  enable: IN std_logic
+    a   : in  std_logic_vector(7 downto 0);
+    b   : in  std_logic_vector(7 downto 0);
+    f   : out std_logic_vector(7 downto 0);
+    s   : in  std_logic_vector(2 downto 0);
+    cout: out std_logic;
+    en  : in  std_logic;
+    clk : in  std_logic
     );
 end component;
 
---Signals
+
+
+--------------- SIGNALS ---------------
 --Decoder signals:
 signal opcode : std_logic_vector(7 downto 0) := (others => '0');
 signal inputA   : std_logic_vector(7 downto 0) := (others => '0');
@@ -75,10 +85,24 @@ signal ULAenable: std_logic;
 signal carry    : std_logic;
 signal ulaSEL   : std_logic_vector(2 downto 0);
 
-    
+
+
+--------------- COMPONENT INSTANCIATION ---------------
+ULA: ulaEntity port map(
+    	a    => inputA,
+        b    => inputB,
+        f    => ULAoutput,
+        s    => ulaSEL,
+        cout => carry,
+        en   => ULAenable,
+        clk  => clk
+    );
+
+
+--------------- BEGIN ---------------
 begin
 
---Decoder process
+--------------- PROCESSES ---------------
 
 	--Insctruction Queue Reader
 	process(clk, reset, mainInput) 
@@ -109,6 +133,8 @@ begin
     	end if;
     end process;
     
+
+    
 	--Opcode decoder
     process(opcode, state)
     begin
@@ -124,16 +150,7 @@ begin
             end case;
        	end if;        
     end process;  
-   
---ULA process
-ULA: ulaEntity port map(
-    	inputA   => inputA,
-        inputB   => inputB,
-        outputQ  => ULAoutput,
-        selector => ulaSEL,
-        carryOut => carry,
-        enable   => ULAenable
-);
+
 
 	process(ULAoutput, ULAenable)
     begin

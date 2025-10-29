@@ -13,7 +13,8 @@ entity sum is
 end sum;
 
 architecture sumARCH of sum is
-begin
+
+    begin
     process(a, b, cin)
         variable carry_v: std_logic_vector(8 downto 0);
     begin
