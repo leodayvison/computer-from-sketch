@@ -10,7 +10,10 @@ port(
     r1    : INOUT std_logic_vector(7 downto 0); -- endereco 001
     r2    : INOUT std_logic_vector(7 downto 0); -- endereco 010
     r3    : INOUT std_logic_vector(7 downto 0); -- endereco 011
-    flags : INOUT std_logic_vector(2 downto 0) -- endereco 100
+    flags : INOUT std_logic_vector(2 downto 0); -- endereco 100
+    op1   : INOUT std_logic_vector(7 downto 0); -- endereco 101
+    op2   : INOUT std_logic_vector(7 downto 0); -- endereco 110
+    res   : INOUT std_logic_vector(7 downto 0); -- endereco 111
     -- FLAGS: zero (2), overflow (1), carry (0)
     );
 end regfile;

@@ -2,19 +2,21 @@ library IEEE;
 USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
 
-entity comp is
+entity compEntity is
     port(
         a   : in  std_logic_vector(7 downto 0);
         b   : in  std_logic_vector(7 downto 0);
-        f   : out std_logic_vector(7 downto 0)
+      	res_comp: out std_logic_vector(7 downto 0);
+        en  : in  std_logic;
+        clk : in  std_logic
     );
-end comp;
+end compEntity;
 
-architecture compARCH of comp is
-    signal res_sub: std_logic_vector(7 downto 0);
+architecture compARCH of compEntity is
+signal f : std_logic_vector(7 downto 0);
 
 
-    component sub
+     component sub
         port(
             a   : in  std_logic_vector(7 downto 0);
             b   : in  std_logic_vector(7 downto 0);
@@ -23,15 +25,22 @@ architecture compARCH of comp is
     end component;
 
 
+
+
+
 begin
 
-  C1: sub port map(a => a, b => b, f => res_sub);
+  C1: sub port map(a => a, b => b, f => f);
 
-    process(a, b)
+    process(a, b, en,f)
     begin
-            case res_sub is
-                when "00000000" => f <= "00000001"; -- dá 1 caso sejam enguais
-                when others => f <= "00000000"; -- dá 0 caso sejam deferentes
-            end case;
+        if en = '1' then
+                case f is
+                  -- 1 pra quando é igual, sub = 0
+                    when "00000000" => res_comp <=  "00000001";
+                  -- 0 pra quando é dif,  sub =/ 0
+                    when others => res_comp <= "00000000";
+                end case;
+    end if;
     end process;
 end compARCH;
