@@ -135,7 +135,12 @@ begin
                 	addr   <= to_unsigned(mainInput); -- coloca o endereço desejado no banco de registradores e pega o valor armazenado
                     regwe  <= '0';
                     inputA <= data;
-                    state  <= loadInputB;
+
+                    if to_integer(unsigned(opcode)) < 4 then
+                        state <=  doneAndExecute;
+                    else 
+                        state <= loadInputB;
+                    end if;
                 when loadInputB =>
                     addr   <= to_unsigned(mainInput);
                     regwe  <= '0';
