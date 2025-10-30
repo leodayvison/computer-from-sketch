@@ -1,7 +1,11 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
 entity regfile is
 port(
     clk   : IN std_logic;
-    reset : IN std_logic; --Reset the register BANK
+    rst : IN std_logic; --Reset the register BANK
     we    : IN std_logic; --Choose the operator (write/read)
     addr  : IN unsigned(2 downto 0); --Choose the register
     data  : INOUT std_logic_vector(7 downto 0);
@@ -10,19 +14,18 @@ port(
     r1    : INOUT std_logic_vector(7 downto 0); -- endereco 001
     r2    : INOUT std_logic_vector(7 downto 0); -- endereco 010
     r3    : INOUT std_logic_vector(7 downto 0); -- endereco 011
-    flags : INOUT std_logic_vector(2 downto 0); -- endereco 100
-    op1   : INOUT std_logic_vector(7 downto 0); -- endereco 101
-    op2   : INOUT std_logic_vector(7 downto 0); -- endereco 110
-    res   : INOUT std_logic_vector(7 downto 0); -- endereco 111
-    -- FLAGS: zero (2), overflow (1), carry (0)
+    flags : INOUT std_logic_vector(1 downto 0)
+    -- FLAGS: zero (3), carry (2), negative (1), overflow (0)
     );
 end regfile;
 
 architecture reg of regfile is
+type reg_array is array(0 to 3) of std_logic_vector(7 downto 0); -- vetor (banco) de vetores (registradores)
+signal regs  : reg_array := (others=>(others=>'0')); -- zera todos os registradores
+
 begin
 
-    type reg_array is array(0 to 3) of std_logic_vector(7 downto 0); -- vetor (banco) de vetores (registradores)
-    signal regs  : reg_array := (others=>(others=>'0')); -- zera todos os registradores
+    
 
     process(clk) -- escrita, reset
     begin

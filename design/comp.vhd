@@ -6,9 +6,7 @@ entity compEntity is
     port(
         a   : in  std_logic_vector(7 downto 0);
         b   : in  std_logic_vector(7 downto 0);
-      	res_comp: out std_logic_vector(7 downto 0);
-        en  : in  std_logic;
-        clk : in  std_logic
+      	res_comp: out std_logic_vector(7 downto 0)
     );
 end compEntity;
 
@@ -32,15 +30,13 @@ begin
 
   C1: sub port map(a => a, b => b, f => f);
 
-    process(a, b, en,f)
+    process(a, b, f)
     begin
-        if en = '1' then
                 case f is
                   -- 1 pra quando é igual, sub = 0
                     when "00000000" => res_comp <=  "00000001";
                   -- 0 pra quando é dif,  sub =/ 0
                     when others => res_comp <= "00000000";
                 end case;
-    end if;
     end process;
 end compARCH;

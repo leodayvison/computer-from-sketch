@@ -28,8 +28,6 @@ begin
         );
 
     
-
-    -- Estímulos
     process
     begin
         -- Ativa COMP

@@ -5,7 +5,7 @@ USE IEEE.numeric_std.all;
 
 --------------------------------------------------------------
 
--------Main Decoder Entity:
+------- Main Decoder Entity:
 --Note that we work with 8-bit words
 
 entity controlDecoderEntity is
@@ -27,8 +27,11 @@ architecture controlLogic of controlDecoderEntity is
 --Instruction Queue Defined
 --Here we created a non-specific type called stateType with 4 values (3 loarders and 1 execute); Then we create a status signal that starts with the status of the opcode;
 type stateType is (loadOpcode, loadInputA, loadInputB, doneAndExecute)
-signal state : stateType := loadOpcode;
-signal IR    : std_logic_vector(7 downto 0); -- Instruction Register
+signal state    : stateType := loadOpcode;
+signal IR, data       : std_logic_vector(7 downto 0); -- Instruction Register
+signal regrst, regwe : std_logic;
+signal addr            : unsigned(2 downto 0);
+signal flags           : std_logic_vector(1 downto 0);
 
 
 
@@ -48,20 +51,34 @@ port(
 end component;
 
 -- REGFILE component:
-
+component regfile is
+port(
+    clk   : IN std_logic;
+    reset : IN std_logic; --Reset the register BANK
+    we    : IN std_logic; --Choose the operator (write/read)
+    addr  : IN unsigned(2 downto 0); --Choose the register
+    data  : INOUT std_logic_vector(7 downto 0);
+    
+    r0    : INOUT std_logic_vector(7 downto 0); -- endereco 000
+    r1    : INOUT std_logic_vector(7 downto 0); -- endereco 001
+    r2    : INOUT std_logic_vector(7 downto 0); -- endereco 010
+    r3    : INOUT std_logic_vector(7 downto 0); -- endereco 011
+    flags : INOUT std_logic_vector(2 downto 0)
+    -- FLAGS: zero (2), overflow (1), carry (0)
+);
+end component;
 
 
 
 --------------- SIGNALS ---------------
 --Decoder signals:
-signal opcode : std_logic_vector(7 downto 0) := (others => '0');
-signal inputA   : std_logic_vector(7 downto 0) := (others => '0');
-signal inputB   : std_logic_vector(7 downto 0) := (others => '0');
+signal opcode    : std_logic_vector(7 downto 0) := (others => '0');
+signal inputA    : std_logic_vector(7 downto 0) := (others => '0');
+signal inputB    : std_logic_vector(7 downto 0) := (others => '0');
 --Adder signals:
-signal ULAoutput: std_logic_vector(7 downto 0);
-signal ULAenable: std_logic;
-signal carry    : std_logic;
-signal ulaSEL   : std_logic_vector(2 downto 0);
+signal ULAoutput : std_logic_vector(7 downto 0);
+signal ULAenable : std_logic;
+signal ulaSEL    : std_logic_vector(2 downto 0);
 
 
 
@@ -71,10 +88,26 @@ ULA: ulaEntity port map(
         b    => inputB,
         f    => ULAoutput,
         s    => ulaSEL,
-        cout => carry,
         en   => ULAenable,
         clk  => clk
+        z    => flags(3);
+        cout => flags(2);
+        n    => flags(1);
+        ovf  => flags(0)
     );
+
+REGBANK: regfile port map(
+    clk => clk,
+    reset => regrst,
+    we    => regwe,
+    addr  => addr,
+    data  => data,
+    r0    => open,
+    r1    => open,
+    r2    => open,
+    r3    => open,
+    flags => flags
+);
 
 
 --------------- BEGIN ---------------
@@ -99,10 +132,14 @@ begin
                 	opcode <= mainInput;
                     state <= loadInputA;
                 when loadInputA =>
-                	inputA <= mainInput;
-                    state <= loadInputB;
+                	addr   <= to_unsigned(mainInput); -- coloca o endereço desejado no banco de registradores e pega o valor armazenado
+                    regwe  <= '0';
+                    inputA <= data;
+                    state  <= loadInputB;
                 when loadInputB =>
-                	inputB <= mainInput;
+                    addr   <= to_unsigned(mainInput);
+                    regwe  <= '0';
+                	inputB <= data;
                     state <= doneAndExecute;
                 
                 when doneAndExecute =>
@@ -133,9 +170,6 @@ begin
 	process(ULAoutput, ULAenable)
     begin
         output <= ULAoutput;
-        if ULAoutput = "00000000" then 
-
-            
     end process;
 
 
