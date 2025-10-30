@@ -10,10 +10,11 @@ USE IEEE.numeric_std.all;
 
 entity controlDecoderEntity is
 port(
-	clk: IN std_logic;
-    reset: IN std_logic;
-    mainInput: IN std_logic_vector(7 downto 0); --Words for Instruction Queue
-    decoderOutput: OUT std_logic_vector(7 downto 0) --Main output (e.g.: adder A + B)
+	clk           : IN std_logic;
+    reset         : IN std_logic;
+    mainInput     : IN std_logic_vector(7 downto 0); --Words for Instruction Queue
+    decoderOutput : OUT std_logic_vector(7 downto 0); --Main output (e.g.: adder A + B)
+    nextLine      : OUT std_logic;
 	);
 end controlDecoderEntity;
 
@@ -30,7 +31,7 @@ type stateType is (loadOpcode, loadInputA, loadInputB, doneAndExecute)
 signal state    : stateType := loadOpcode;
 signal IR, data       : std_logic_vector(7 downto 0); -- Instruction Register
 signal regrst, regwe : std_logic;
-signal addr            : unsigned(2 downto 0);
+signal addr            : unsigned(7 downto 0);
 signal flags           : std_logic_vector(1 downto 0);
 
 
@@ -56,7 +57,7 @@ port(
     clk   : IN std_logic;
     reset : IN std_logic; --Reset the register BANK
     we    : IN std_logic; --Choose the operator (write/read)
-    addr  : IN unsigned(2 downto 0); --Choose the register
+    addr  : IN unsigned(7 downto 0); --Choose the register
     data  : INOUT std_logic_vector(7 downto 0);
     
     r0    : INOUT std_logic_vector(7 downto 0); -- endereco 000
@@ -78,8 +79,9 @@ signal inputB    : std_logic_vector(7 downto 0) := (others => '0');
 --Adder signals:
 signal ULAoutput : std_logic_vector(7 downto 0);
 signal ULAenable : std_logic;
-signal ulaSEL    : std_logic_vector(2 downto 0);
-
+signal ulaSEL    : std_logic_vector(7 downto 0);
+--Other signals:
+signal aux_addr : unsigned(7 downto 0); -- guarda o primeiro endereço pra guardar o resultado da operação
 
 
 --------------- COMPONENT INSTANCIATION ---------------
@@ -116,7 +118,8 @@ begin
 --------------- PROCESSES ---------------
 
 	--Insctruction Queue Reader
-	process(clk, reset, mainInput) 
+	process(clk, reset, mainInput)
+    
     begin  
     	--If we would like to reset the Instruction Queue
     	if reset = '1' then 
@@ -126,56 +129,44 @@ begin
             inputB   <= (others => '0');
         
         --here we read the instruction queue according to each operation
-    	elsif rising_edge(clk) then    
+    	elsif rising_edge(clk) then 
+            nextLine <= '0';   
         	case state is
                 when loadOpcode =>
                 	opcode <= mainInput;
+                    nextLine <= '1';
                     state <= loadInputA;
                 when loadInputA =>
-                	addr   <= to_unsigned(mainInput); -- coloca o endereço desejado no banco de registradores e pega o valor armazenado
+                	addr   <= unsigned(mainInput); -- coloca o endereço desejado no banco de registradores e pega o valor armazenado
+                    aux_addr <= unsigned(mainInput);
                     regwe  <= '0';
                     inputA <= data;
-
+                    nextLine <= '1';
                     if to_integer(unsigned(opcode)) < 4 then
                         state <=  doneAndExecute;
                     else 
                         state <= loadInputB;
                     end if;
                 when loadInputB =>
-                    addr   <= to_unsigned(mainInput);
+                    addr   <= unsigned(mainInput);
                     regwe  <= '0';
                 	inputB <= data;
+                    nextLine <= '1';
                     state <= doneAndExecute;
                 
                 when doneAndExecute =>
+                    ulaSEL <= opcode;
+                    regwe <= '1';
+                    ulaENABLE <= '1';
+                    addr <= aux_addr;
+                    nextLine <= '1';
                 	state <= loadOpcode;
     		end case;
     	end if;
     end process;
     
 
-    
-	--Opcode decoder
-    process(opcode, state)
-    begin
-    	
-        ULAenable <= '0';
-        
-        if state = doneAndExecute then
-        	case opcode is
-            	when "00000000" =>
-                	ULAenable <= '1';
-                when others =>
-                	ula_enable <= '0';
-            end case;
-       	end if;        
-    end process;  
 
-
-	process(ULAoutput, ULAenable)
-    begin
-        output <= ULAoutput;
-    end process;
 
 
 

@@ -7,7 +7,7 @@ entity ulaEntity is
         a            : in  std_logic_vector(7 downto 0);
         b            : in  std_logic_vector(7 downto 0);
         f            : out std_logic_vector(7 downto 0);
-        s            : in  std_logic_vector(3 downto 0);
+        s            : in  std_logic_vector(7 downto 0);
         en           : in  std_logic;
         clk          : in  std_logic;
         z, cout, n, ovf : out std_logic -- flags
@@ -76,17 +76,17 @@ begin
         if rising_edge(clk) then
         if en = '1' then
                 case s is
-                    when "0000" => tempres := res_sum; ovf <= (a(7) = b(7) and res_sum(7) /= a(7));
-                    when "0001" => tempres := res_sub; ovf <= (a(7) /= b(7) and res_sub(7) /= a(7));
-                    when "0010" => tempres := res_mul; ovf <= ovf_mul;
-                    when "0011" => tempres := res_div;
-                    when "0100" => tempres := a xor b;
-                    when "0101" => tempres := a or b;
-                    when "0110" => tempres := a and b;
-                    when "0111" => tempres := res_comp;
-                    when "1000" => tempres := not(a and b);
-                    wwhen "1001" => tempres := not(a or b);
-                    when "1010" => tempres := not(a xor b);
+                    when "00010000" => tempres := res_sum; ovf <= (a(7) = b(7) and res_sum(7) /= a(7));
+                    when "00100000" => tempres := res_sub; ovf <= (a(7) /= b(7) and res_sub(7) /= a(7));
+                    when "00110000" => tempres := res_mul; ovf <= ovf_mul;
+                    when "01000000" => tempres := res_div;
+                    when "10000000" => tempres := a xor b;
+                    when "01110000" => tempres := a or b;
+                    when "01100000" => tempres := a and b;
+                    when "11000000" => tempres := res_comp;
+                    when "10010000" => tempres := not(a and b);
+                    wwhen "10100000" => tempres := not(a or b);
+                    when "10110000" => tempres := not(a xor b);
                     when others => tempres := (others => '0');
                 end case;
                 f <= tempres;
