@@ -127,7 +127,7 @@ instructionLoader : process(nextLine)
 
         wait until nextLine = '1';
 
-        if not endFile(queueFile) then
+        if not endfile(queueFile) then
             --while not endfile(queueFile) loop
             readline(queueFile, inline);
                 
