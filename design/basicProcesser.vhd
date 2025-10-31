@@ -17,7 +17,7 @@ port(
 	clk           : IN std_logic;
     reset         : IN std_logic;
     --mainInput     : IN std_logic_vector(7 downto 0); --Words for Instruction Queue
-    decoderOutput : OUT std_logic_vector(7 downto 0); --Main output (e.g.: adder A + B)
+    decoderOutput : OUT std_logic_vector(7 downto 0) --Main output (e.g.: adder A + B)
     --nextLine      : OUT std_logic;
 	);
 end controlDecoderEntity;
@@ -115,38 +115,38 @@ REGBANK: regfile port map(
 --------------- READER TXT PROCESS -------------------------------------
 
 file queueFile : text open read_mode is "queue.txt"; -- ABRINDO O ARQUIVO DA FILA
-signal fileReady : boolean := false; -- FILA NAO TERMINOU
+--signal fileReady : boolean := false; -- FILA NAO TERMINOU (NAO É MAIS NECESSARIO)
 signal nextLine : std_logic := 1;
 
 instructionLoader : process
         variable inline : line;
         variable c : character;
-        variable tmp_vec: std_logic_vector(7 downto 0);
+        variable temporaryInput: std_logic_vector(7 downto 0);
 
     begin
 
-        if nextLine = '1' then
+        wait until nextLine = '1';
 
-            while not endfile(queueFile) loop
-                readline(queueFile, inline);
-            
-                for bit in 0 to 7 loop
-                    read(inline, c);
-                    if c = '1' then
-                        tmp_vec(7 - bit) := '1';
-                    else
-                        tmp_vec(7 - bit) := '0';
-                    end if;
-                end loop;
-
-                mainInput <= tmp_vec;
-                fileReady <= true;
-
-                wait until rising_edge(clk);
+        if not endFile(queueFile) then
+            --while not endfile(queueFile) loop
+            readline(queueFile, inline);
+                
+            for bit in 0 to 7 loop
+                read(inline, c);
+                if c = '1' then
+                    temporaryInput(7 - bit) := '1';
+                else
+                    temporaryInput(7 - bit) := '0';
+                end if;
             end loop;
+
+            mainInput <= temporaryInput;
+
+            -- wait until rising_edge(clk);
+            --end loop;
         end if;
-        
-        wait;
+
+        wait for 1 ns;
     end process;
 
 
