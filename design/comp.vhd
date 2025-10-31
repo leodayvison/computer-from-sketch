@@ -6,7 +6,9 @@ entity compEntity is
     port(
         a   : in  std_logic_vector(7 downto 0);
         b   : in  std_logic_vector(7 downto 0);
-      	res_comp: out std_logic_vector(7 downto 0)
+      	res_comp: out std_logic_vector(7 downto 0);
+        en : in std_logic;
+        clk          : in  std_logic
     );
 end compEntity;
 

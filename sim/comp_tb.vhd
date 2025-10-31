@@ -34,7 +34,7 @@ begin
         en <= '1';
         wait for clk_period;
 
-        -- Teste 1: a ≠ b
+        -- Teste 1: a dif b
         a <= "00000011"; b <= "00000010";
         wait for 1 ns;
         assert (res_comp = "00000000")
@@ -55,5 +55,4 @@ begin
         report " Teste finalizado com sucesso." severity note;
         wait;
     end process;
-
-end sim;
+    end sim;
