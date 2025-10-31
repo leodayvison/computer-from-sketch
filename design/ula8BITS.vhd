@@ -74,14 +74,14 @@ architecture ulaARCH of ulaEntity is
     component bitshiftleft
         port(
             a : in std_logic_vector(7 downto 0);
-            f : out std_logic_vector(7 downto 0);
+            f : out std_logic_vector(7 downto 0)
         );
     end component;
 
     component bitshiftright
         port(
             a : in std_logic_vector(7 downto 0);
-            f : out std_logic_vector(7 downto 0);
+            f : out std_logic_vector(7 downto 0)
         );
     end component;
     
