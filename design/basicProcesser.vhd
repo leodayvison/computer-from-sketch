@@ -80,7 +80,7 @@ port(
     r1    : INOUT std_logic_vector(7 downto 0); -- endereco 001
     r2    : INOUT std_logic_vector(7 downto 0); -- endereco 010
     r3    : INOUT std_logic_vector(7 downto 0); -- endereco 011
-    flags : INOUT std_logic_vector(2 downto 0)
+    flags : INOUT std_logic_vector(7 downto 0)
     -- FLAGS: zero (2), overflow (1), carry (0)
 );
 end component;
@@ -92,10 +92,10 @@ ULA: ulaEntity port map(
         f    => ULAoutput,
         s    => ulaSEL,
         en   => ULAenable,
-        clk  => clk
-        z    => flags(3);
-        cout => flags(2);
-        n    => flags(1);
+        clk  => clk,
+        z    => flags(3),
+        cout => flags(2),
+        n    => flags(1),
         ovf  => flags(0)
     );
 
@@ -118,7 +118,7 @@ file queueFile : text open read_mode is "queue.txt"; -- ABRINDO O ARQUIVO DA FIL
 --signal fileReady : boolean := false; -- FILA NAO TERMINOU (NAO É MAIS NECESSARIO)
 signal nextLine : std_logic := 1;
 
-instructionLoader : process
+instructionLoader : process(nextLine)
         variable inline : line;
         variable c : character;
         variable temporaryInput: std_logic_vector(7 downto 0);
@@ -142,8 +142,8 @@ instructionLoader : process
 
             mainInput <= temporaryInput;
 
-            -- wait until rising_edge(clk);
-            --end loop;
+                wait until rising_edge(nextLine);
+            end loop;
         end if;
 
         wait for 1 ns;

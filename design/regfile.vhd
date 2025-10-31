@@ -7,14 +7,14 @@ port(
     clk   : IN std_logic;
     rst : IN std_logic; --Reset the register BANK
     we    : IN std_logic; --Choose the operator (write/read)
-    addr  : IN unsigned(2 downto 0); --Choose the register
+    addr  : IN unsigned(7 downto 0); --Choose the register
     data  : INOUT std_logic_vector(7 downto 0);
     
     r0    : INOUT std_logic_vector(7 downto 0); -- endereco 000
     r1    : INOUT std_logic_vector(7 downto 0); -- endereco 001
     r2    : INOUT std_logic_vector(7 downto 0); -- endereco 010
     r3    : INOUT std_logic_vector(7 downto 0); -- endereco 011
-    flags : INOUT std_logic_vector(1 downto 0)
+    flags : INOUT std_logic_vector(7 downto 0)
     -- FLAGS: zero (3), carry (2), negative (1), overflow (0)
     );
 end regfile;
