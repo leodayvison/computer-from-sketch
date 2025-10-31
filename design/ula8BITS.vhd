@@ -16,7 +16,7 @@ end ulaEntity;
 
 architecture ulaARCH of ulaEntity is
     signal carry_out: std_logic;
-    signal res_sum, res_sub, res_mul, res_div, res_comp, res_inc, res_dec: std_logic_vector(7 downto 0);
+    signal res_sum, res_sub, res_mul, res_div, res_comp, res_inc, res_dec, res_mod, res_shl, res_shr: std_logic_vector(7 downto 0);
     signal ovf_mul: std_logic;
     signal cout_inc : std_logic;
 
@@ -63,6 +63,29 @@ architecture ulaARCH of ulaEntity is
         );
     end component;
 
+    component modu
+        port(
+            a          : in  std_logic_vector(7 downto 0);
+            b          : in  std_logic_vector(7 downto 0);
+            f   : out std_logic_vector(7 downto 0)
+        );
+    end component;
+
+    component bitshiftleft
+        port(
+            a : in std_logic_vector(7 downto 0);
+            f : out std_logic_vector(7 downto 0);
+        );
+    end component;
+
+    component bitshiftright
+        port(
+            a : in std_logic_vector(7 downto 0);
+            f : out std_logic_vector(7 downto 0);
+        );
+    end component;
+    
+
 begin
     U1: sum port map(a => a, b => b, f => res_sum, cin => '0', cout => carry_out);
     U2: sub port map(a => a, b => b, f => res_sub);
@@ -71,6 +94,11 @@ begin
     U5: comp port map(a => a, b => b, res_comp => res_comp);
     U6: sum port map(a => a, b => "00000001", f => res_inc, cin => '0', cout => cout_inc);
     U7: sub port map(a => a, b => "00000001", f => res_dec);
+    U8: modu port map(a=> a, b=> b, f => res_mod);
+    U9: bitshiftleft port map(a => a, f => res_shl);
+    U10: bitshiftright port map(a => a, f => res_shr);
+
+
 
     process(clk)
     variable tempres : std_logic_vector(7 downto 0);
@@ -97,6 +125,15 @@ begin
                         ovf <= ovf_mul;
                     when "01000000" => 
                         tempres := res_div;
+                        ovf <= '0';
+                    when "01010000" => 
+                        tempres := res_mod;
+                        ovf <= '0';
+                    when "00000100" =>
+                        tempres := res_shl;
+                        ovf <= '0';
+                    when "00000101" =>
+                        tempres := res_shr;
                         ovf <= '0';
                     when "10000000" => 
                         tempres := a xor b;

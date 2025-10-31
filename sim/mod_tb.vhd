@@ -8,7 +8,7 @@ end modu_tb;
 architecture tb of modu_tb is
 
 -- DUT component
-component modu is
+component div is
 port(
   a: in std_logic_vector(7 downto 0);
   b: in std_logic_vector(7 downto 0);
@@ -23,7 +23,7 @@ signal a_in, b_in, f_m_out: std_logic_vector(7 downto 0);
 begin
 
   -- Connect DUT
-  DUT: modu port map(a_in, b_in, f_m_out);
+  DUT: div port map(a_in, b_in, f_m_out);
 
   process
   begin

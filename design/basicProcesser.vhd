@@ -230,6 +230,7 @@ begin
                     regwe <= '1';
                     ulaENABLE <= '1';
                     addr <= aux_addr;
+                    data <= ULAoutput;
                     nextLine <= '1';
                     state <= loadOpcode;
                 

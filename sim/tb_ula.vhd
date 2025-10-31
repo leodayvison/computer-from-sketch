@@ -84,7 +84,12 @@ begin
         assert (f = "00000111") report "Fail dec: expected 00000111, got "  severity error;
 
 
-
+        a <= "00001101";
+        b <= "00000100";
+        s <= "01010000";
+        wait until rising_edge(clk);
+        wait for 1 ns;
+        assert(f_m_out ="00000001") report "Fail com resto" severity error;
        
 
         -- xor
