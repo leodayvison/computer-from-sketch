@@ -176,6 +176,9 @@ begin
                     when "11100000" =>
                         tempres := a;
                         ovf <= '0';
+                    when "11010000" =>
+                        tempres := b;
+                        ovf <= '0';
                     when others => 
                         tempres := (others => '0');
                         ovf <= '0';
