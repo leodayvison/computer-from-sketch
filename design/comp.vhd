@@ -13,7 +13,6 @@ end comp;
 architecture compARCH of comp is
 signal f : std_logic_vector(7 downto 0);
 
-
      component sub
         port(
             a   : in  std_logic_vector(7 downto 0);
@@ -21,10 +20,6 @@ signal f : std_logic_vector(7 downto 0);
             f   : out std_logic_vector(7 downto 0)
         );
     end component;
-
-
-
-
 
 begin
 
