@@ -1,74 +1,68 @@
--- Imports
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use STD.textio.all; -- suficiente, não precisa do synopsys
--- use IEEE.std_logic_textio.all; -- opcional, só se quiser -fsynopsys
+use STD.textio.all;
 
---------------------------------------------------------------
--- Main Decoder Entity
---------------------------------------------------------------
+
 
 entity controlDecoderEntity is
     port(
         clk           : in  std_logic;
         reset         : in  std_logic;
-        mainInput     : in  std_logic_vector(7 downto 0); -- Words for Instruction Queue
-        decoderOutput : out std_logic_vector(7 downto 0)
+        mainInput     : in  std_logic_vector(7 downto 0);
+        decoderOutput : out std_logic_vector(7 downto 0);
+        nextLine      : out std_logic;
+        debug_state   : out std_logic_vector(3 downto 0) 
     );
 end controlDecoderEntity;
 
 
----------------------------------------------------------
--- Main Decoder Architecture
----------------------------------------------------------
+
 
 architecture controlLogic of controlDecoderEntity is
 
     -- States
     type stateType is (
         loadOpcode,
-        decodeOpcode,
         loadInputAddr,
         loadInputData,
         loadRegisterA,
+        readRegisterA,   
         loadRegisterB,
+        readRegisterB,   
         doneAndExecute
     );
     signal state : stateType := loadOpcode;
 
     -- Signals
-    signal opcode     : std_logic_vector(7 downto 0) := (others => '0');
-    signal inputA     : std_logic_vector(7 downto 0) := (others => '0');
-    signal inputB     : std_logic_vector(7 downto 0) := (others => '0');
-    signal ULAoutput  : std_logic_vector(7 downto 0);
-    signal ULAenable  : std_logic := '0';
-    signal ulaSEL     : std_logic_vector(7 downto 0);
-    signal aux_addr   : unsigned(7 downto 0) := (others => '0');
-    signal IR, data   : std_logic_vector(7 downto 0) := (others => '0');
-    signal regrst     : std_logic := '0';
-    signal regwe      : std_logic := '0';
-    signal addr       : unsigned(7 downto 0) := (others => '0');
-    signal flags      : std_logic_vector(7 downto 0) := (others => '0');
-    signal nextLine   : std_logic := '1';
-
+    signal opcode      : std_logic_vector(7 downto 0) := (others => '0');
+    signal inputA      : std_logic_vector(7 downto 0) := (others => '0');
+    signal inputB      : std_logic_vector(7 downto 0) := (others => '0');
+    signal ULAoutput   : std_logic_vector(7 downto 0);
+    signal ULAenable   : std_logic := '0';
+    signal ulaSEL      : std_logic_vector(7 downto 0);
+    signal aux_addr    : unsigned(7 downto 0) := (others => '0');
+    signal data        : std_logic_vector(7 downto 0) := (others => '0');
+    signal regrst      : std_logic := '0';
+    signal regwe       : std_logic := '0';
+    signal addr        : unsigned(7 downto 0) := (others => '0');
+    signal flags       : std_logic_vector(7 downto 0) := (others => '0');
     
-
     --------------- COMPONENTS ---------------
-
+    
     -- ULA
     component ulaEntity is
         port(
-            a     : in  std_logic_vector(7 downto 0);
-            b     : in  std_logic_vector(7 downto 0);
-            f     : out std_logic_vector(7 downto 0);
-            s     : in  std_logic_vector(7 downto 0); -- ajustado pro mesmo tamanho do opcode
-            en    : in  std_logic;
-            clk   : in  std_logic;
-            z     : out std_logic;
-            cout  : out std_logic;
-            n     : out std_logic;
-            ovf   : out std_logic
+            a    : in  std_logic_vector(7 downto 0);
+            b    : in  std_logic_vector(7 downto 0);
+            f    : out std_logic_vector(7 downto 0);
+            s    : in  std_logic_vector(7 downto 0); 
+            en   : in  std_logic;
+            clk  : in  std_logic;
+            z    : out std_logic;
+            cout : out std_logic;
+            n    : out std_logic;
+            ovf  : out std_logic
         );
     end component;
 
@@ -76,7 +70,7 @@ architecture controlLogic of controlDecoderEntity is
     component regfile is
         port(
             clk   : in std_logic;
-            rst : in std_logic;
+            rst   : in std_logic;
             we    : in std_logic;
             addr  : in unsigned(7 downto 0);
             data  : inout std_logic_vector(7 downto 0);
@@ -89,6 +83,18 @@ architecture controlLogic of controlDecoderEntity is
     end component;
 
 begin
+
+    -- Mapeia o estado interno para a porta de debug
+    with state select
+        debug_state <= "0000" when loadOpcode,     -- 0
+                       "0001" when loadInputAddr,  -- 1 (era decode)
+                       "0010" when loadInputData,  -- 2
+                       "0011" when loadRegisterA,  -- 3
+                       "0100" when readRegisterA,  -- 4
+                       "0101" when loadRegisterB,  -- 5
+                       "0110" when readRegisterB,  -- 6
+                       "0111" when doneAndExecute, -- 7
+                       "1111" when others;         -- Erro/Indefinido
 
     --------------- COMPONENT INSTANCIATION ---------------
     ULA: ulaEntity
@@ -108,7 +114,7 @@ begin
     REGBANK: regfile
         port map(
             clk   => clk,
-            rst => regrst,
+            rst   => regrst,
             we    => regwe,
             addr  => addr,
             data  => data,
@@ -118,121 +124,124 @@ begin
             r3    => open,
             flags => flags
         );
-
+        
     
-
-
-    
-    -- BSUCA E EXECUCAO
+    -- BUSCA E EXECUCAO
     
     process(clk, reset)
-    variable v_state     : stateType;
-    variable v_opcode    : std_logic_vector(7 downto 0);
-    variable v_aux_addr  : unsigned(7 downto 0);
-    variable v_addr      : unsigned(7 downto 0);
-    variable v_data      : std_logic_vector(7 downto 0);
-    variable v_inputA    : std_logic_vector(7 downto 0);
-    variable v_inputB    : std_logic_vector(7 downto 0);
-begin
-    if reset = '1' then
-        -- Inicializa variáveis
-        v_state    := loadOpcode;
-        v_opcode   := (others => '0');
-        v_aux_addr := (others => '0');
-        v_addr     := (others => '0');
-        v_data     := (others => '0');
-        v_inputA   := (others => '0');
-        v_inputB   := (others => '0');
-        nextLine   <= '0';
-        regwe      <= '0';
-        ulaENABLE  <= '0';
+    begin
+        if reset = '1' then
+            state     <= loadOpcode;
+            opcode    <= (others => '0');
+            inputA    <= (others => '0');
+            inputB    <= (others => '0');
+            nextLine  <= '0';
+            regwe     <= '0';
+            addr      <= (others => '0');
+            data      <= (others => '0');
+            ulaENABLE <= '0';
+            regrst    <= '1'; 
 
-    elsif rising_edge(clk) then
-        -- Atualiza variáveis a partir de sinais atuais (se necessário)
-        v_state    := state;       -- sinal atual para controle
-        v_opcode   := opcode;
-        v_aux_addr := aux_addr;
-        v_addr     := addr;
-        v_data     := data;
-        v_inputA   := inputA;
-        v_inputB   := inputB;
+        elsif rising_edge(clk) then
+            -- Valores padrão (importante para o 'handshake')
+            nextLine  <= '0'; 
+            ulaENABLE <= '0'; 
+            regwe     <= '0'; 
+            regrst    <= '0'; 
 
-        -- FSM usando variáveis
-        case v_state is
+            case state is
 
-            -- Leitura do opcode
-            when loadOpcode =>
-                v_opcode := mainInput;
-                nextLine <= '1';
-                v_state  := decodeOpcode;
+                -----------------------------------
+                when loadOpcode =>
+                    -- 1. Armazena o opcode
+                    opcode   <= mainInput;
+                    
+                   
+                    nextLine <= '1';
+                    
+                  
+                    if mainInput = "11100000" then 
+                        state <= loadInputAddr;
+                    else 
+                        state <= loadRegisterA;
+                    end if;
 
-            -- Decodificação do opcode
-            when decodeOpcode =>
-                if v_opcode = "11100000" then
-                    v_state := loadInputAddr;
-                else
-                    v_state := loadRegisterA;
-                end if;
+                    regwe <= '1';
 
-            -- Leitura do endereço para LOAD
-            when loadInputAddr =>
-                v_addr     := unsigned(mainInput);
-                v_aux_addr := unsigned(mainInput);
-                regwe      <= '1';
-                nextLine   <= '1';
-                v_state    := loadInputData;
+                -----------------------------------
+                when loadInputAddr =>
 
-            -- Leitura do dado para LOAD
-            when loadInputData =>
-                v_data   := mainInput;
-                nextLine <= '1';
-                v_state  := doneAndExecute;
+                    addr     <= unsigned(mainInput);
+                    aux_addr <= unsigned(mainInput);
+                    nextLine <= '1'; 
+                    state    <= loadInputData;
+                    regwe <= '1';
 
-            -- Leitura do registrador A
-            when loadRegisterA =>
-                v_addr     := unsigned(mainInput);
-                v_aux_addr := unsigned(mainInput);
-                regwe      <= '0';
-                v_inputA   := v_data;
-                nextLine   <= '1';
+                -----------------------------------
+                when loadInputData =>
+                    
+                    data     <= mainInput; 
+                    regwe    <= '0'; 
+                    nextLine <= '1'; 
+                    
+                   
+                    state    <= loadOpcode;
+                    
+                   
 
-                case v_opcode is
-                    when "00000010" | "00000011" | "00000100" | "00000101" =>
-                        v_state := doneAndExecute;
-                    when others =>
-                        v_state := loadRegisterB;
-                end case;
+                -----------------------------------
+                when loadRegisterA =>
+                    -- Agora mainInput tem o AddrA
+                    addr     <= unsigned(mainInput);
+                    aux_addr <= unsigned(mainInput); 
+                    regwe    <= '0'; -- É uma leitura
+                    nextLine <= '1'; -- Pede o próximo (AddrB ou sinaliza fim)
+                    state    <= readRegisterA; 
 
-            -- Leitura do registrador B
-            when loadRegisterB =>
-                v_addr     := unsigned(mainInput);
-                regwe      <= '0';
-                v_inputB   := v_data;
-                nextLine   <= '1';
-                v_state    := doneAndExecute;
+                -----------------------------------
+                when readRegisterA => 
+                   
+                    inputA <= data; 
+                    
+                    case opcode is
+                   
+                        when "00000010" | "00000011" | "00000100" | "00000101" =>
+                            state <= doneAndExecute;
+                   
+                        when others =>
+                            nextLine <= '1'; -- Pede o AddrB
+                            state <= loadRegisterB;
+                    end case;
 
-            -- Execução
-            when doneAndExecute =>
-                ulaSEL    <= v_opcode;
-                regwe     <= '1';
-                ulaENABLE <= '1';
-                v_addr    := v_aux_addr;
-                v_data    := ULAoutput;
-                nextLine  <= '1';
-                v_state   := loadOpcode;
+                -----------------------------------
+                when loadRegisterB =>
+                   
+                    addr     <= unsigned(mainInput);
+                    regwe    <= '0'; -- É uma leitura
+                    state    <= readRegisterB; 
 
-        end case;
+                -----------------------------------
+                when readRegisterB => 
+                   
+                    inputB <= data; 
+                    state  <= doneAndExecute;
 
-        -- Atualiza sinais a partir das variáveis
-        state    <= v_state;
-        opcode   <= v_opcode;
-        aux_addr <= v_aux_addr;
-        addr     <= v_addr;
-        data     <= v_data;
-        inputA   <= v_inputA;
-        inputB   <= v_inputB;
-end if;
-end process;
+                -----------------------------------
+                when doneAndExecute =>
+                   
+                    ulaSEL    <= opcode;
+                    regwe     <= '1';      -- Habilita escrita (do resultado)
+                    ulaENABLE <= '1';      -- Habilita ULA
+                    addr      <= aux_addr; -- Endereço de escrita (RegA)
+                    if opcode /= "11100000" then
+                    data      <= ULAoutput; -- Dado de escrita (Resultado da ULA)
+                    end if;
+                    
+                    nextLine <= '1';  -- Pede a *próxima instrução*
+                    state    <= loadOpcode;
 
+            end case;
+        end if;
+    end process;
 
 end controlLogic;
