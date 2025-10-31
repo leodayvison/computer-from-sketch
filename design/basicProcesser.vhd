@@ -3,6 +3,10 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
 
+use IEEE.STD_LOGIC_1164.ALL;
+use STD.TEXTIO.ALL;
+use IEEE.STD_LOGIC_TEXTIO.ALL;
+
 --------------------------------------------------------------
 
 ------- Main Decoder Entity:
@@ -12,9 +16,9 @@ entity controlDecoderEntity is
 port(
 	clk           : IN std_logic;
     reset         : IN std_logic;
-    mainInput     : IN std_logic_vector(7 downto 0); --Words for Instruction Queue
+    --mainInput     : IN std_logic_vector(7 downto 0); --Words for Instruction Queue
     decoderOutput : OUT std_logic_vector(7 downto 0); --Main output (e.g.: adder A + B)
-    nextLine      : OUT std_logic;
+    --nextLine      : OUT std_logic;
 	);
 end controlDecoderEntity;
 
@@ -29,12 +33,24 @@ architecture controlLogic of controlDecoderEntity is
 --Here we created a non-specific type called stateType with 4 values (3 loarders and 1 execute); Then we create a status signal that starts with the status of the opcode;
 type stateType is (loadOpcode, loadInputA, loadInputB, doneAndExecute)
 signal state    : stateType := loadOpcode;
+
+--------------- SIGNALS ---------------
+--Decoder signals:
+signal opcode    : std_logic_vector(7 downto 0) := (others => '0');
+signal inputA    : std_logic_vector(7 downto 0) := (others => '0');
+signal inputB    : std_logic_vector(7 downto 0) := (others => '0');
+--Adder signals:
+signal ULAoutput : std_logic_vector(7 downto 0);
+signal ULAenable : std_logic;
+signal ulaSEL    : std_logic_vector(7 downto 0);
+--Other signals:
+signal aux_addr : unsigned(7 downto 0); -- guarda o primeiro endereço pra guardar o resultado da operação
 signal IR, data       : std_logic_vector(7 downto 0); -- Instruction Register
 signal regrst, regwe : std_logic;
 signal addr            : unsigned(7 downto 0);
 signal flags           : std_logic_vector(1 downto 0);
 
-
+signal mainInput : std_logic_vector(7 downto 0) :=  (others => '0'); -- INSTRUCTION QUEUE
 
 --------------- COMPONENTS ---------------
 
@@ -69,21 +85,6 @@ port(
 );
 end component;
 
-
-
---------------- SIGNALS ---------------
---Decoder signals:
-signal opcode    : std_logic_vector(7 downto 0) := (others => '0');
-signal inputA    : std_logic_vector(7 downto 0) := (others => '0');
-signal inputB    : std_logic_vector(7 downto 0) := (others => '0');
---Adder signals:
-signal ULAoutput : std_logic_vector(7 downto 0);
-signal ULAenable : std_logic;
-signal ulaSEL    : std_logic_vector(7 downto 0);
---Other signals:
-signal aux_addr : unsigned(7 downto 0); -- guarda o primeiro endereço pra guardar o resultado da operação
-
-
 --------------- COMPONENT INSTANCIATION ---------------
 ULA: ulaEntity port map(
     	a    => inputA,
@@ -110,6 +111,44 @@ REGBANK: regfile port map(
     r3    => open,
     flags => flags
 );
+
+--------------- READER TXT PROCESS -------------------------------------
+
+file queueFile : text open read_mode is "queue.txt"; -- ABRINDO O ARQUIVO DA FILA
+signal fileReady : boolean := false; -- FILA NAO TERMINOU
+signal nextLine : std_logic := 1;
+
+instructionLoader : process
+        variable inline : line;
+        variable c : character;
+        variable tmp_vec: std_logic_vector(7 downto 0);
+
+    begin
+
+        if nextLine = '1' then
+
+            while not endfile(queueFile) loop
+                readline(queueFile, inline);
+            
+                for bit in 0 to 7 loop
+                    read(inline, c);
+                    if c = '1' then
+                        tmp_vec(7 - bit) := '1';
+                    else
+                        tmp_vec(7 - bit) := '0';
+                    end if;
+                end loop;
+
+                mainInput <= tmp_vec;
+                fileReady <= true;
+
+                wait until rising_edge(clk);
+            end loop;
+        end if;
+        
+        wait;
+    end process;
+
 
 
 --------------- BEGIN ---------------
