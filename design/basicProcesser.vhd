@@ -16,7 +16,7 @@ entity controlDecoderEntity is
 port(
 	clk           : IN std_logic;
     reset         : IN std_logic;
-    --mainInput     : IN std_logic_vector(7 downto 0); --Words for Instruction Queue
+    mainInput     : IN std_logic_vector(7 downto 0); --Words for Instruction Queue
     decoderOutput : OUT std_logic_vector(7 downto 0) --Main output (e.g.: adder A + B)
     --nextLine      : OUT std_logic;
 	);
@@ -50,7 +50,7 @@ signal regrst, regwe : std_logic;
 signal addr            : unsigned(7 downto 0);
 signal flags           : std_logic_vector(1 downto 0);
 
-signal mainInput : std_logic_vector(7 downto 0) :=  (others => '0'); -- INSTRUCTION QUEUE
+-- signal mainInput : std_logic_vector(7 downto 0) :=  (others => '0'); -- INSTRUCTION QUEUE
 
 --------------- COMPONENTS ---------------
 
