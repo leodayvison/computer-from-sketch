@@ -171,35 +171,69 @@ begin
             nextLine <= '0';   
         	case state is
                 when loadOpcode =>
-                	opcode <= mainInput;
+                    opcode <= mainInput;
                     nextLine <= '1';
-                    state <= loadInputA;
-                when loadInputA =>
-                	addr   <= unsigned(mainInput); -- coloca o endereço desejado no banco de registradores e pega o valor armazenado
+                    
+                    case opcode is
+                        when "11100000" => --LOAD
+                            state <= loadInputAddr;
+                        when others => 
+                            state <= loadRegisterA;
+                    end case;
+
+                when loadInputAddr =>
+                    nextLine <= '0';
+                    addr <= unsigned(mainInput);
+                    aux_addr <= unsigned(mainInput);
+                    regwe <= '1';
+                    nextLine <= '1';
+
+                    state <= loadInputData;
+                
+                when loadInputData =>
+                    nextLine <= '0';
+                    data <= mainInput;
+                    nextLine <='1';
+
+                    state <= doneAndExecute;
+
+                when loadRegisterA =>
+                    addr   <= unsigned(mainInput); -- coloca o endereço desejado no banco de registradores e pega o valor armazenado
                     aux_addr <= unsigned(mainInput);
                     regwe  <= '0';
                     inputA <= data;
                     nextLine <= '1';
-                    if to_integer(unsigned(opcode)) < 4 then
-                        state <=  doneAndExecute;
-                    else 
-                        state <= loadInputB;
-                    end if;
-                when loadInputB =>
+                    nextLine <= '0';
+
+                    case opcode is
+                        when "00000010" =>
+                            state <= doneAndExecute;
+                        when "00000011" =>
+                            state <= doneAndExecute;
+                        when "00000100" =>
+                            state <= doneAndExecute;
+                        when "00000101" =>
+                            state <= doneAndExecute;
+                        when others =>
+                            state <= loadRegisterB;
+                    end case;
+
+                when loadRegisterB =>
                     addr   <= unsigned(mainInput);
                     regwe  <= '0';
-                	inputB <= data;
+                    inputB <= data;
                     nextLine <= '1';
                     state <= doneAndExecute;
-                
+                            
                 when doneAndExecute =>
                     ulaSEL <= opcode;
                     regwe <= '1';
                     ulaENABLE <= '1';
                     addr <= aux_addr;
                     nextLine <= '1';
-                	state <= loadOpcode;
-    		end case;
+                    state <= loadOpcode;
+                
+            end case;
     	end if;
     end process;
     
