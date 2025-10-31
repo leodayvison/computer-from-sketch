@@ -6,20 +6,20 @@ entity tb_ula is
 end tb_ula;
 
 architecture sim of tb_ula is
-    -- Entradas da ULA
+   
     signal a, b : std_logic_vector(7 downto 0) := (others => '1');
-    signal s    : std_logic_vector(2 downto 0) := (others => '0');
+    signal s    : std_logic_vector(7 downto 0) := (others => '0');
     signal en   : std_logic := '0';
     signal clk  : std_logic := '0';
 
-    -- Saídas da ULA
+
     signal f    : std_logic_vector(7 downto 0) := (others => '0');
-    signal cout : std_logic;
+    signal z, n, ovf, cout : std_logic;
 
     constant clk_period : time := 10 ns;
 
 begin
-    -- Instanciação da ULA
+   
     UUT: entity work.ulaEntity
         port map(
             a    => a,
@@ -27,11 +27,14 @@ begin
             f    => f,
             s    => s,
             cout => cout,
+            z => z,
+            n => n,
+            ovf => ovf,
             en   => en,
             clk  => clk
         );
 
-    -- Clock
+   
     clk_process: process
     begin
         while true loop
@@ -42,54 +45,67 @@ begin
         end loop;
     end process;
 
-    -- Estímulos
+
     stim_proc: process
     begin
-        -- Ativa ULA
+        
         en <= '1';
         wait until rising_edge(clk);
 
-        -- Test SUM
-        a <= "00000001"; b <= "00000101"; s <= "000";  -- 3+5
+        -- sum
+        a <= "00000001"; b <= "00000101"; s <= "00010000";  -- 3+5
         wait for 1 ns;
         wait until rising_edge(clk);
         wait on f;
         assert (f="00000110") report "Fail sum" severity error;
 
-        -- Test SUB
-        a <= "00001010"; b <= "00000101"; s <= "001";  -- 10-5
+        -- sub
+        a <= "00001010"; b <= "00000101"; s <= "00100000";  -- 10-5
         wait until rising_edge(clk);
         wait on f;
         assert (f="00000101") report "Fail sub" severity error;
 
-        -- Test MUL
-        a <= "00000110"; b <= "00000101"; s <= "010";  -- 6*5
+        -- mult
+        a <= "00000110"; b <= "00000101"; s <= "00110000";  -- 6*5mpres :=
         wait until rising_edge(clk);
         wait on f;
         assert (f="00011110") report "Fail mul" severity error;
+        
+        -- inc - b recebe 0 pq ja ta cm 1 na arch
+         a <= "00000111"; b <= "00000000"; s <= "00000001";
+        wait until rising_edge(clk);
+        wait for 1 ns;
+        assert (f = "00001000") report "Fail inc: expected 00001000, got " severity error;
+
+        -- dec
+        a <= "00001000"; b <= "00000000"; s <= "00000010";
+        wait until rising_edge(clk);
+        wait for 1 ns;
+        assert (f = "00000111") report "Fail dec: expected 00000111, got "  severity error;
+
 
 
        
 
-        -- Test XOR
-        a <= "10101010"; b <= "11001100"; s <= "100";
+        -- xor
+        a <= "10101010"; b <= "11001100"; s <= "10000000";
         wait until rising_edge(clk);
 
-        -- Test OR
-        s <= "101";
+        -- or
+        s <= "01110000";
         wait until rising_edge(clk);
 
-        -- Test AND
-        s <= "110";
+        -- and
+        s <= "01100000";
         wait until rising_edge(clk);
 
-        -- Desativa ULA
+        
         en <= '0';
         a <= (others => '0');
         s <= (others => '0');
         wait until rising_edge(clk);
 
-        -- Termina simulação
+       
         wait;
     end process;
 

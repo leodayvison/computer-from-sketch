@@ -2,17 +2,15 @@ library IEEE;
 USE IEEE.std_logic_1164.all;
 USE IEEE.numeric_std.all;
 
-entity compEntity is
+entity comp is
     port(
         a   : in  std_logic_vector(7 downto 0);
         b   : in  std_logic_vector(7 downto 0);
-      	res_comp: out std_logic_vector(7 downto 0);
-        en : in std_logic;
-        clk          : in  std_logic
+      	res_comp: out std_logic_vector(7 downto 0)
     );
-end compEntity;
+end comp;
 
-architecture compARCH of compEntity is
+architecture compARCH of comp is
 signal f : std_logic_vector(7 downto 0);
 
 

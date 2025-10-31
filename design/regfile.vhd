@@ -14,13 +14,13 @@ port(
     r1    : INOUT std_logic_vector(7 downto 0); -- endereco 001
     r2    : INOUT std_logic_vector(7 downto 0); -- endereco 010
     r3    : INOUT std_logic_vector(7 downto 0); -- endereco 011
-    flags : INOUT std_logic_vector(7 downto 0)
+    flags : INOUT std_logic_vector(7 downto 0)  -- endereco 100
     -- FLAGS: zero (3), carry (2), negative (1), overflow (0)
     );
 end regfile;
 
 architecture reg of regfile is
-type reg_array is array(0 to 3) of std_logic_vector(7 downto 0); -- vetor (banco) de vetores (registradores)
+type reg_array is array(0 to 4) of std_logic_vector(7 downto 0); -- vetor (banco) de vetores (registradores)
 signal regs  : reg_array := (others=>(others=>'0')); -- zera todos os registradores
 
 begin

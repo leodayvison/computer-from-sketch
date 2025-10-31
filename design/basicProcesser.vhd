@@ -143,7 +143,6 @@ instructionLoader : process(nextLine)
             mainInput <= temporaryInput;
 
                 wait until rising_edge(nextLine);
-            end loop;
         end if;
 
         wait for 1 ns;
