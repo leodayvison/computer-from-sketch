@@ -206,7 +206,9 @@ begin
                 -- Ciclo 2: Ler Opcode e Decodificar
                 when leOpcode =>
                     opcode   <= internal_mainInput; -- Lê o dado da ROM interna
-                    if internal_mainInput = "11100000" then -- MVI
+                    if internal_mainInput = "00000000" then
+                        state <= pedeOpcode;
+                    elsif internal_mainInput = "11100000" then -- MVI
                         state <= pedeInputAddr;
                     else -- ULA
                         state <= pedeRegisterA;
