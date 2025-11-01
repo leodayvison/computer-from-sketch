@@ -18,7 +18,7 @@ A arquitetura é baseada em uma Máquina de Estados Finitos (FSM) que orquestra 
 
 * **`processor_tb.vhd`**: O testbench principal, usado para simular o processador. Ele fornece o `clock` e o `reset`, e o processador executa o programa da ROM autonomamente.
 
-## 🛠️ Assembler (Compilador)
+## Assembler (Compilador)
 
 Para facilitar a programação do processador, o projeto inclui um assembler customizado. Este programa (ex: `compiler.py`) converte uma linguagem de montagem (Assembly) legível por humanos em código de máquina binário que o processador entende.
 
