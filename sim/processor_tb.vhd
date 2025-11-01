@@ -3,12 +3,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity tb_controlDecoderEntity is
-    -- Esta entidade de testbench é vazia
 end entity tb_controlDecoderEntity;
 
 architecture Test of tb_controlDecoderEntity is
 
-    -- 1. Componente a ser testado (a nova entidade)
+
     component controlDecoderEntity is
         port(
             clk           : in  std_logic;
@@ -22,15 +21,15 @@ architecture Test of tb_controlDecoderEntity is
     constant CLK_PERIOD : time := 10 ns;
 
     signal s_clk   : std_logic := '0';
-    signal s_reset : std_logic := '0'; -- Usando reset ATIVO-ALTO (como no seu FSM)
+    signal s_reset : std_logic := '0'; -- Usando reset ATIVO-ALTO 
 
-    -- Sinais para observar as saídas
+    
     signal s_decoderOutput : std_logic_vector(7 downto 0);
     signal s_debug_state   : std_logic_vector(4 downto 0);
 
 begin
 
-    -- 3. Instanciação da Unidade Sob Teste (UUT)
+    
     UUT : controlDecoderEntity
         port map (
             clk           => s_clk,
@@ -39,7 +38,7 @@ begin
             debug_state   => s_debug_state
         );
 
-    -- 4. Processo gerador de Clock
+    
     clk_process : process
     begin
         s_clk <= '0';
@@ -48,28 +47,25 @@ begin
         wait for CLK_PERIOD / 2;
     end process clk_process;
 
-    -- 5. Processo de Estímulo (muito mais simples)
+    
     stimulus_process : process
     begin
         report "Iniciando Testbench do controlDecoderEntity...";
         
-        -- Aplica o reset (ativo-alto, conforme seu FSM_process)
+        -- Aplica o reset (ativo-alto)
         s_reset <= '1';
         wait for 2 * CLK_PERIOD; -- Segura o reset por 2 ciclos
         
         s_reset <= '0'; -- Libera o processador
         report "Reset liberado. Processador iniciando execução...";
 
-        -- Agora, basta esperar o processador rodar.
-        -- Você pode observar o 's_debug_state' no seu simulador (ex: GTKWave)
-        -- para ver a FSM trocando de estados.
         
-        -- Ex: Espera 200 ciclos de clock
+        
         wait for 200 * CLK_PERIOD;
 
         report "Simulação terminada após 200 ciclos.";
         
-        wait; -- Para a simulação
+        wait; 
         
     end process stimulus_process;
 

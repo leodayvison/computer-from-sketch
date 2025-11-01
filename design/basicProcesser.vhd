@@ -8,9 +8,7 @@ entity controlDecoderEntity is
     port(
         clk           : in  std_logic;
         reset         : in  std_logic;
-        -- mainInput     : in  std_logic_vector(7 downto 0); -- REMOVIDO
         decoderOutput : out std_logic_vector(7 downto 0); 
-        -- nextLine      : out std_logic; -- REMOVIDO
         debug_state   : out std_logic_vector(4 downto 0) 
     );
 end controlDecoderEntity;
@@ -48,7 +46,6 @@ architecture controlLogic of controlDecoderEntity is
     end function init_rom_from_file;
 
     -- Instancia a ROM interna lendo o arquivo
-    -- ATENÇÃO: O caminho do arquivo é relativo ao local onde a simulação é executada.
     constant ROM : rom_type := init_rom_from_file("../sim/instructions.txt");
 
     ----------------------------------------------------
@@ -58,7 +55,7 @@ architecture controlLogic of controlDecoderEntity is
     -- Program Counter (PC) interno
     signal pc : unsigned(6 downto 0) := (others => '0'); -- 7 bits = 128 posições
     
-    -- Sinais que substituem as portas 'nextLine' e 'mainInput'
+    
     signal internal_nextLine  : std_logic;
     signal internal_mainInput : std_logic_vector(7 downto 0);
 
@@ -156,8 +153,6 @@ begin
     -- 4. NOVOS PROCESSOS PARA PC E LEITURA DA ROM
     ----------------------------------------------------
 
-    -- Processo que controla o Program Counter (PC)
-    -- Ele incrementa o PC quando a FSM sinaliza 'internal_nextLine'
     pc_process: process(clk, reset)
     begin
         if reset = '1' then
@@ -169,10 +164,7 @@ begin
         end if;
     end process;
 
-    -- Processo que modela a leitura síncrona da ROM
-    -- Ele funciona exatamente como o seu 'InstructionROM.vhd' original:
-    -- A saída 'internal_mainInput' no ciclo N é o dado de ROM[pc] do ciclo N.
-    -- (O PC que foi atualizado no início deste mesmo ciclo N)
+    
     rom_read_process: process(clk, reset)
     begin
         if reset = '1' then -- Assumindo reset ativo-alto
@@ -187,9 +179,6 @@ begin
     -- 5. PROCESSO DA FSM MODIFICADO
     ----------------------------------------------------
     
-    -- As únicas mudanças são:
-    -- 'nextLine'  -> 'internal_nextLine'
-    -- 'mainInput' -> 'internal_mainInput'
     
     fsm_process: process(clk, reset)
     begin
