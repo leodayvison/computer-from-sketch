@@ -8,7 +8,9 @@ entity controlDecoderEntity is
     port(
         clk           : in  std_logic;
         reset         : in  std_logic;
+        -- mainInput     : in  std_logic_vector(7 downto 0); -- REMOVIDO
         decoderOutput : out std_logic_vector(7 downto 0); 
+        -- nextLine      : out std_logic; -- REMOVIDO
         debug_state   : out std_logic_vector(4 downto 0) 
     );
 end controlDecoderEntity;
@@ -46,7 +48,7 @@ architecture controlLogic of controlDecoderEntity is
     end function init_rom_from_file;
 
     -- Instancia a ROM interna lendo o arquivo
-    
+    -- ATENÇÃO: O caminho do arquivo é relativo ao local onde a simulação é executada.
     constant ROM : rom_type := init_rom_from_file("../sim/instructions.txt");
 
     ----------------------------------------------------
@@ -56,7 +58,7 @@ architecture controlLogic of controlDecoderEntity is
     -- Program Counter (PC) interno
     signal pc : unsigned(6 downto 0) := (others => '0'); -- 7 bits = 128 posições
     
-   
+    -- Sinais que substituem as portas 'nextLine' e 'mainInput'
     signal internal_nextLine  : std_logic;
     signal internal_mainInput : std_logic_vector(7 downto 0);
 
@@ -64,7 +66,7 @@ architecture controlLogic of controlDecoderEntity is
     -- 3. LÓGICA DA FSM (Máquina de Estados)
     ----------------------------------------------------
     
-    
+    -- States (Renomeados para clareza: "Pede" e "Le")
     type stateType is (
         -- Ciclo 0
         pedeOpcode,
@@ -118,7 +120,7 @@ architecture controlLogic of controlDecoderEntity is
 
 begin
 
-    -- Mapeia o estado interno para a porta de debug 
+    -- Mapeia o estado interno para a porta de debug (sem alteração)
     with state select
         debug_state <= "00000" when pedeOpcode,
                        "00001" when leOpcode,
@@ -132,8 +134,8 @@ begin
                        "01001" when leRegisterB,
                        "01010" when executeULA,
                        "01011" when waitULA,
-                       "01111" when writebackULA,
-                       "10000" when others;
+                       "01100" when writebackULA,
+                       "01101" when others;
 
     --------------- COMPONENT INSTANCIATION ---------------
     ULA: ulaEntity
@@ -168,6 +170,7 @@ begin
     end process;
 
     -- Processo que modela a leitura síncrona da ROM
+    -- Ele funciona exatamente como o seu 'InstructionROM.vhd' original:
     -- A saída 'internal_mainInput' no ciclo N é o dado de ROM[pc] do ciclo N.
     -- (O PC que foi atualizado no início deste mesmo ciclo N)
     rom_read_process: process(clk, reset)
@@ -184,6 +187,9 @@ begin
     -- 5. PROCESSO DA FSM MODIFICADO
     ----------------------------------------------------
     
+    -- As únicas mudanças são:
+    -- 'nextLine'  -> 'internal_nextLine'
+    -- 'mainInput' -> 'internal_mainInput'
     
     fsm_process: process(clk, reset)
     begin
@@ -197,6 +203,7 @@ begin
             local_regs <= (others => (others => '0')); 
 
         elsif rising_edge(clk) then
+            -- Valores padrão (importante)
             internal_nextLine <= '0'; -- PC não incrementa por padrão
             ulaENABLE <= '0'; 
 
@@ -248,7 +255,7 @@ begin
                     
                     case opcode is
                         -- Operações de 1 operando
-                        when "00000001" | "00000010" | "00000011" | "00000100" | "00000101" =>
+                        when "00000010" | "00000011" | "00000100" | "00000101" =>
                             state <= executeULA; -- Pula para a execução
                         -- Operações de 2 operandos
                         when others =>
@@ -271,8 +278,8 @@ begin
                     ulaENABLE <= '1';      
                     state     <= waitULA;
 
-                -- Ciclo 8: Espera um ciclo de clock que a ULA demora pra soltar o resultado
-                when waitULA => 
+                -- Ciclo 8: esperar a ULA pq ela demora mais um clock pra mandar o output
+                when waitULA =>
                     state <= writebackULA;
 
                 -- Ciclo 9: Salvar Resultado

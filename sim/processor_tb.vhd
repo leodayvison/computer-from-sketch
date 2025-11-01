@@ -3,10 +3,12 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity tb_controlDecoderEntity is
+    -- Esta entidade de testbench é vazia
 end entity tb_controlDecoderEntity;
 
 architecture Test of tb_controlDecoderEntity is
 
+    -- 1. Componente a ser testado (a nova entidade)
     component controlDecoderEntity is
         port(
             clk           : in  std_logic;
@@ -20,7 +22,7 @@ architecture Test of tb_controlDecoderEntity is
     constant CLK_PERIOD : time := 10 ns;
 
     signal s_clk   : std_logic := '0';
-    signal s_reset : std_logic := '0'; 
+    signal s_reset : std_logic := '0'; -- Usando reset ATIVO-ALTO (como no seu FSM)
 
     -- Sinais para observar as saídas
     signal s_decoderOutput : std_logic_vector(7 downto 0);
@@ -51,21 +53,23 @@ begin
     begin
         report "Iniciando Testbench do controlDecoderEntity...";
         
-        
+        -- Aplica o reset (ativo-alto, conforme seu FSM_process)
         s_reset <= '1';
         wait for 2 * CLK_PERIOD; -- Segura o reset por 2 ciclos
         
         s_reset <= '0'; -- Libera o processador
         report "Reset liberado. Processador iniciando execução...";
 
+        -- Agora, basta esperar o processador rodar.
+        -- Você pode observar o 's_debug_state' no seu simulador (ex: GTKWave)
+        -- para ver a FSM trocando de estados.
         
-        
-        
+        -- Ex: Espera 200 ciclos de clock
         wait for 200 * CLK_PERIOD;
 
         report "Simulação terminada após 200 ciclos.";
         
-        wait;
+        wait; -- Para a simulação
         
     end process stimulus_process;
 
