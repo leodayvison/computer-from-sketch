@@ -17,7 +17,7 @@ architecture Test of tb_controlDecoderEntity is
         );
     end component;
 
-    -- 2. Sinais para conectar ao componente
+    
     constant CLK_PERIOD : time := 10 ns;
 
     signal s_clk   : std_logic := '0';

@@ -28,7 +28,7 @@ const Instruction mnemonics_table[] = {
     {"NAND", "10010000", 2}, // Bitwise NAND
     {"NOR",  "10100000", 2}, // Bitwise NOR
     {"XNOR", "10110000", 2}, // Bitwise XNOR
-    {"COMP", "11000000", 2}  // Compare
+    {"COMP", "11000000", 2}  // Compare 
 };
 
 const int mnemonics_count = sizeof(mnemonics_table) / sizeof(mnemonics_table[0]);

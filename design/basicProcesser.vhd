@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use STD.textio.all;
-use IEEE.std_logic_textio.all; -- Necessário para a leitura do arquivo
+use IEEE.std_logic_textio.all; 
 
 entity controlDecoderEntity is
     port(
