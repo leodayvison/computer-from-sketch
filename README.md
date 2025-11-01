@@ -1,6 +1,6 @@
-# Computer-from-Scratch
+# Computer-from-Sketch
 
-Este é um projeto acadêmico de um processador simples de 8 bits, desenvolvido "do zero" (from scratch) em VHDL. O objetivo é simular os componentes fundamentais de um computador, implementando o ciclo completo de busca, decodificação e execução de instruções.
+Este é um projeto acadêmico de um processador simples de 8 bits, desenvolvido "do zero" em VHDL. O objetivo é simular os componentes fundamentais de um computador, implementando o ciclo completo de busca, decodificação e execução de instruções.
 
 O processador é capaz de ler um "programa" em binário (um arquivo `.txt`), gerado por um assembler customizado, e executá-lo em simulação.
 
