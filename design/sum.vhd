@@ -13,7 +13,7 @@ entity sum is
 end sum;
 
 architecture sumARCH of sum is
-
+    
     begin
     process(a, b, cin)
         variable carry_v: std_logic_vector(8 downto 0);
@@ -25,8 +25,7 @@ architecture sumARCH of sum is
         
             f(n) <= carry_v(n) xor a(n) xor b(n);
             
-        
-        
+            
             carry_v(n+1) := (a(n) and b(n)) or (carry_v(n) and (a(n) xor b(n)));
         end loop;
 
