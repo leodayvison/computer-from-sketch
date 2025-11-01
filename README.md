@@ -20,7 +20,7 @@ A arquitetura é baseada em uma Máquina de Estados Finitos (FSM) que orquestra 
 
 ## Assembler (Compilador)
 
-Para facilitar a programação do processador, o projeto inclui um assembler customizado. Este programa (ex: `compiler.py`) converte uma linguagem de montagem (Assembly) legível por humanos em código de máquina binário que o processador entende.
+Para facilitar a programação do processador, o projeto inclui um assembler customizado. Este programa (ex: `compiler.c`) converte uma linguagem de montagem (Assembly) legível por humanos em código de máquina binário que o processador entende.
 
 ### Fluxo de Programação
 
