@@ -2,9 +2,14 @@
 *.cf
 *.ghw
 *.v
+*.bin
+*.img
+*.elf
+*.o
 work/
 waves/
 logs/
+
 
 # Ignorar scripts executáveis (opcional, dependendo do seu fluxo de trabalho)
 # run_sim.sh
